@@ -55,8 +55,8 @@ class Cropper extends React.Component {
     const cropHeightInPixel = percentToPixel(crop.height, src.height);
     const cropXinPixel = percentToPixel(crop.x, src.width);
     const cropYinPixel = percentToPixel(crop.y, src.height);
-    canvas.width = cropWidthInPixel;
-    canvas.height = cropHeightInPixel;
+    canvas.width = cropWidthInPixel * 4;
+    canvas.height = cropHeightInPixel * 4;
     const ctx = canvas.getContext("2d");
 
     ctx.drawImage(
@@ -67,8 +67,8 @@ class Cropper extends React.Component {
       cropHeightInPixel * scaleY,
       0,
       0,
-      cropWidthInPixel,
-      cropHeightInPixel
+      cropWidthInPixel * 4,
+      cropHeightInPixel * 4
     );
   }
 

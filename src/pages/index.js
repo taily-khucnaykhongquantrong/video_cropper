@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 
 import Layout from "../components/layout";
 import Cropper from "../components/cropper";
-import VideoPlayer from "../components/videoPlayer/videoPlayer";
+import VideoPlayer from "../components/videoPlayer";
 
 const IndexPage = () => {
   const [disabled, setDisable] = useState(true);

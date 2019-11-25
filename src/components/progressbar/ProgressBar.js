@@ -17,7 +17,7 @@ const ProgressBar = ({ duration, onUpdateCurrentTime, value }) => {
     const percentage = left / totalWidth;
 
     // Update video current time
-    // progressbarRef.current.style.width = `${percentage * 100}%`;
+    progressbarRef.current.style.width = `${percentage * 100}%`;
     onUpdateCurrentTime(percentage * duration);
   };
 

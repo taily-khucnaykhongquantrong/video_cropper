@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import ProgressBar from "../progressbar";
 import Button from "../button";
-import videoSrc from "../../videos/license_plate1.mp4";
+import videoSrc from "../../assets/videos/license_plate1.mp4";
 
 import s from "./videoPlayer.module.scss";
 
@@ -34,15 +34,12 @@ const displayTime = ({ hour, minute, second }) => {
     : `${hourDisplay}:${minuteDisplay}:${secondDisplay}`;
 };
 
+const playIcon = <i className="ni ni-button-play" />;
+const pauseIcon = <i className="ni ni-button-pause" />;
+
 class VideoPlayer extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      currentProgress: 0,
-      currentTime: 0,
-      duration: 0,
-    };
 
     this.videoRef = React.createRef();
 
@@ -52,10 +49,10 @@ class VideoPlayer extends React.Component {
 
   componentDidMount() {
     this.videoRef.current.addEventListener("timeupdate", () => {
-      const { currentTime, duration } = this.videoRef.current;
-      const currentProgress = currentTime / duration;
+      const { currentTime } = this.videoRef.current;
+      const { onSetCurrentTime } = this.props;
 
-      this.setState({ currentProgress, currentTime, duration });
+      onSetCurrentTime(currentTime);
     });
   }
 
@@ -78,28 +75,35 @@ class VideoPlayer extends React.Component {
   }
 
   render() {
-    const { currentProgress, currentTime, duration } = this.state;
+    const { currentTime = 0, duration = 0, paused = true, ended = true } =
+      this.videoRef.current || {};
+    const currentProgress = currentTime / duration || 0;
     const currentTimestamp = progressToTime(currentTime);
     const durationTimestamp = progressToTime(duration);
     const currentTimeDisplay = displayTime(currentTimestamp);
     const durationDisplay = displayTime(durationTimestamp);
+    const buttonIcon = paused || ended ? playIcon : pauseIcon;
 
     return (
       <>
         {/* eslint-disable-next-line */}
-        <video width="640" height="360" ref={this.videoRef}>
+        <video className={s.video} ref={this.videoRef}>
           <source src={videoSrc} />
         </video>
         <div className={s.controlsBar}>
-          <Button onClick={this.handleButtonClick} />
-          <div>
-            {currentTimeDisplay}/{durationDisplay}
+          <Button className={s.button} onClick={this.handleButtonClick}>
+            <span>{buttonIcon}</span>
+          </Button>
+          <span className={s.timeDisplay}>
+            {`${currentTimeDisplay}/${durationDisplay}`}
+          </span>
+          <div className={s.progressBar}>
+            <ProgressBar
+              duration={duration}
+              onUpdateCurrentTime={this.handleUpdateCurrentTime}
+              value={currentProgress}
+            />
           </div>
-          <ProgressBar
-            duration={duration}
-            onUpdateCurrentTime={this.handleUpdateCurrentTime}
-            value={currentProgress}
-          />
         </div>
       </>
     );
@@ -108,6 +112,7 @@ class VideoPlayer extends React.Component {
 
 VideoPlayer.propTypes = {
   onDisableCrop: PropTypes.func.isRequired,
+  onSetCurrentTime: PropTypes.func.isRequired,
 };
 
 export default VideoPlayer;

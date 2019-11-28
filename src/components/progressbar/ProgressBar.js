@@ -22,9 +22,6 @@ const ProgressBar = ({ duration, onUpdateCurrentTime, value }) => {
   };
 
   const percentage = value * 100;
-  const progressDiv = (
-    <div ref={progressbarRef} style={{ width: `${percentage}%` }} />
-  );
 
   return (
     <div
@@ -35,7 +32,7 @@ const ProgressBar = ({ duration, onUpdateCurrentTime, value }) => {
       tabIndex="-1"
       onKeyDown={() => {}}
     >
-      {progressDiv}
+      <span ref={progressbarRef} style={{ width: `${percentage}%` }} />
     </div>
   );
 };

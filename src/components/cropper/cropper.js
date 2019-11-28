@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
-import "./cropper.module.scss";
+import s from "./cropper.module.scss";
 
 class Cropper extends React.Component {
   constructor(props) {
@@ -13,8 +13,8 @@ class Cropper extends React.Component {
       crop: {
         x: 0,
         y: 0,
-        width: 128,
-        height: 128,
+        width: (128 / 1920) * 640,
+        height: (128 / 1080) * 360,
         ratio: 1,
       },
     };
@@ -27,37 +27,30 @@ class Cropper extends React.Component {
   }
 
   onCropComplete(_, percentCrop) {
-    console.info("onCropComplete", percentCrop);
-
+    const { onCropDone } = this.props;
     this.makeClientCrop(percentCrop);
+    onCropDone(percentCrop);
   }
 
   onCropChange(percentCrop) {
     this.setState({ crop: percentCrop });
   }
 
-  onDragStart = () => {
-    console.info("onDragStart");
-  };
-
-  onDragEnd = () => {
-    console.info("onDragEnd");
-  };
-
   getCroppedImg(src, crop) {
     const { croppedImgRef } = this.props;
     const percentToPixel = (percent, oriSize) => (percent * oriSize) / 100;
 
     const canvas = croppedImgRef.current;
-    const scaleX = src.videoWidth / src.width;
-    const scaleY = src.videoHeight / src.height;
-    const cropWidthInPixel = percentToPixel(crop.width, src.width);
-    const cropHeightInPixel = percentToPixel(crop.height, src.height);
-    const cropXinPixel = percentToPixel(crop.x, src.width);
-    const cropYinPixel = percentToPixel(crop.y, src.height);
-    canvas.width = cropWidthInPixel * 4;
-    canvas.height = cropHeightInPixel * 4;
+    const scaleX = src.videoWidth / src.clientWidth;
+    const scaleY = src.videoHeight / src.clientHeight;
+    const cropWidthInPixel = percentToPixel(crop.width, src.clientWidth);
+    const cropHeightInPixel = percentToPixel(crop.height, src.clientHeight);
+    const cropXinPixel = percentToPixel(crop.x, src.clientWidth);
+    const cropYinPixel = percentToPixel(crop.y, src.clientHeight);
     const ctx = canvas.getContext("2d");
+
+    const ratio = cropWidthInPixel / cropHeightInPixel;
+    canvas.height = canvas.width / ratio;
 
     ctx.drawImage(
       src,
@@ -67,8 +60,8 @@ class Cropper extends React.Component {
       cropHeightInPixel * scaleY,
       0,
       0,
-      cropWidthInPixel * 4,
-      cropHeightInPixel * 4
+      canvas.width,
+      canvas.height
     );
   }
 
@@ -88,12 +81,11 @@ class Cropper extends React.Component {
 
     return (
       <ReactCrop
+        className={s.ReactCrop}
         crop={crop}
         disabled={disabled}
         onChange={this.onCropChange}
         onComplete={this.onCropComplete}
-        onDragStart={this.onDragStart}
-        onDragEnd={this.onDragEnd}
         renderComponent={renderComponent}
         src={src}
       />
@@ -104,6 +96,7 @@ class Cropper extends React.Component {
 Cropper.propTypes = {
   croppedImgRef: PropTypes.objectOf(PropTypes.objectOf(PropTypes.object)),
   disabled: PropTypes.bool.isRequired,
+  onCropDone: PropTypes.func.isRequired,
   src: PropTypes.string,
   renderComponent: PropTypes.node,
   videoPlayer: PropTypes.objectOf(PropTypes.object).isRequired,

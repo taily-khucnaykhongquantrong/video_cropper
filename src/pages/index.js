@@ -1,28 +1,70 @@
 import React, { useRef, useState } from "react";
+import { Row, Col } from "reactstrap";
 
-import Layout from "../components/layout";
+import Layout from "../components/Layout/layout";
 import Cropper from "../components/cropper";
 import VideoPlayer from "../components/videoPlayer";
+import Box from "../components/box";
 
 const IndexPage = () => {
+  const [crop, setCrop] = useState({
+    unit: "%",
+    aspect: null,
+    x: 0,
+    y: 0,
+    width: (128 / 1920) * 100,
+    height: (128 / 1080) * 100,
+  });
   const [disabled, setDisable] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+
   const canvasRef = useRef(null);
   const videoRef = useRef(null);
 
-  const canvas = <canvas ref={canvasRef} width="640" height="360" />;
-  const videoPlayer = <VideoPlayer ref={videoRef} onDisableCrop={setDisable} />;
+  const canvas = <canvas style={{ width: "100%" }} ref={canvasRef} />;
+  const videoPlayer = (
+    <VideoPlayer
+      ref={videoRef}
+      onDisableCrop={setDisable}
+      onSetCurrentTime={setCurrentTime}
+    />
+  );
+  const ratio = [0, 0, 1920 / 100, 1080 / 100, 1920 / 100, 1080 / 100];
 
   return (
     <Layout>
-      <div>
-        <Cropper
-          croppedImgRef={canvasRef}
-          disabled={disabled}
-          renderComponent={videoPlayer}
-          videoPlayer={videoRef}
-        />
-        {canvas}
-      </div>
+      <Row>
+        <Col xs={12} md={8}>
+          <Cropper
+            croppedImgRef={canvasRef}
+            disabled={disabled}
+            renderComponent={videoPlayer}
+            videoPlayer={videoRef}
+            onCropDone={setCrop}
+          />
+        </Col>
+        <Col md={4}>
+          <Row>
+            <Col>
+              <Box title="Result">{canvas}</Box>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <div>
+                {Object.keys(crop).map(
+                  (key, index) =>
+                    index >= 2 && (
+                      <div key={key}>{`${key}: ${crop[key] *
+                        ratio[index]}`}</div>
+                    )
+                )}
+                <div>{`Current time: ${currentTime}`}</div>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
     </Layout>
   );
 };

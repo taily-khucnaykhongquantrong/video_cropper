@@ -1,31 +1,36 @@
 import React from "react";
 import PropTypes from "prop-types";
+// import classnames from "classnames";
+import { Button } from "reactstrap";
 
-import s from "./button.module.scss";
+// import s from "./button.module.scss";
 
-const Button = props => {
-  const { value, onClick } = props;
+const CustomButton = props => {
+  const { className, children, value, onClick } = props;
   return (
-    <div
-      className={s.button}
-      role="button"
-      tabIndex="-1"
-      onKeyPress={() => {}}
+    <Button
+      className={className}
+      color="primary"
+      type="button"
       onClick={onClick}
     >
-      {value}
-    </div>
+      {children || value}
+    </Button>
   );
 };
 
-Button.propTypes = {
+CustomButton.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
   onClick: PropTypes.func,
   value: PropTypes.string,
 };
 
-Button.defaultProps = {
+CustomButton.defaultProps = {
+  children: null,
+  className: "",
   onClick: () => {},
   value: "",
 };
 
-export default Button;
+export default CustomButton;
